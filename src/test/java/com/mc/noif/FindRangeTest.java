@@ -28,8 +28,8 @@ public class FindRangeTest {
     }
     
     @Test
-    public void test_5_4() throws Exception {
-        shouldBe(1, array(5, 4));
+    public void test_3_5() throws Exception {
+        shouldBe(0, array(3, 5));
     }
     
     @Test
@@ -43,13 +43,18 @@ public class FindRangeTest {
     }
     
     @Test
+    public void test_344() throws Exception {
+        shouldBe(2, array(3,4,4));
+    }
+    
+    @Test
     public void test_444() throws Exception {
         shouldBe(3, array(4,4,4));
     }
     
     @Test
     public void test_555() throws Exception {
-        shouldBe(0, array(555));
+        shouldBe(0, array(5,5,5));
     }
     
     @Test
