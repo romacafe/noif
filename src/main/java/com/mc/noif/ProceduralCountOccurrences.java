@@ -1,7 +1,6 @@
 package com.mc.noif;
 
-
-public class FindRange {
+public class ProceduralCountOccurrences implements CountOccurrences {
     public int find(int target, int[] arr) {
         if (arr == null || arr.length == 0) return 0;
         
@@ -18,7 +17,7 @@ public class FindRange {
         int max = arr.length-1;
         while (max - min > 1) {
             int mid = (min+max)/2;
-            if (arr[mid] == target) max = mid;
+            if (arr[mid] >= target) max = mid;
             else min = mid;
         }
         if (arr[min] == target) return min;
@@ -31,7 +30,7 @@ public class FindRange {
         int max = arr.length-1;
         while (max - min > 1) {
             int mid = (min+max)/2;
-            if (arr[mid] == target) min = mid;
+            if (arr[mid] <= target) min = mid;
             else max = mid;
         }
         if (arr[max] == target) return max;
