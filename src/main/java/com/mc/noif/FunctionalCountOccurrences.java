@@ -1,53 +1,43 @@
 package com.mc.noif;
-import java.util.HashMap;
-import java.util.Map;
-
 
 public class FunctionalCountOccurrences implements CountOccurrences {
     
     Function zero = new Scalar(0);
     Function negativeOne = new Scalar(-1);
     
-    public int find(final int target, final int[] arr) {
-        return (Integer) B.ool(isArrayEmpty(arr)).branch(
+    @Override
+    public int find(int target, int[] arr) {
+        return (Integer) B.ool(arr == null || arr.length == 0).branch(
             zero,
-            new Function() {
-                public Object execute() {
-                    return B.ool(isArrayEmpty(arr)).branch(
-                        zero,
-                        new Function() {
-                            public Object execute() {
-                                int left = findLeft(target, arr);
-                                int right = findRight(target, arr);
-                                return B.ool(left == -1 && right == -1).branch(
-                                    zero,
-                                    new RangeSize(left, right));
-                            }
-                        }
-                    );
-                }
-            }
+            new TheAlgorithm(target, arr)
         );
     }
-
-    private boolean isArrayEmpty(final int[] arr) {
-        return arr == null || arr.length == 0;
+    
+    private class TheAlgorithm implements Function {
+        int target;
+        int[] arr;
+        
+        public TheAlgorithm(int target, int[] arr) {
+            this.target = target;
+            this.arr = arr;
+        }
+        public Object execute() {
+            int left = findLeft(target, arr);
+            int right = findRight(target, arr);
+            return B.ool(left == -1 && right == -1).branch(
+                zero,
+                new Result(Range.size(left, right))
+            );
+        }
     }
     
     private int findLeft (final int target, final int[] arr) {
         final Range range = new Range(0, arr.length-1);
         while (range.max - range.min > 1) {
             B.ool(arr[range.mid()] >= target).branch(
-                new Function() {
-                    public Object execute() {
-                        return range.max = range.mid();
-                    }
-                },
-                new Function() {
-                    public Object execute() {
-                        return range.min = range.mid();
-                    }
-                });
+                range.moveMax,
+                range.moveMin
+            );
         }
         return (Integer) B.ool(arr[range.min] == target).branch(
             new Scalar(range.min),
@@ -66,16 +56,8 @@ public class FunctionalCountOccurrences implements CountOccurrences {
         final Range range = new Range(0, arr.length-1);
         while (range.max - range.min > 1) {
             B.ool(arr[range.mid()] <= target).branch(
-                new Function() {
-                    public Object execute() {
-                        return range.min = range.mid();
-                    }
-                },
-                new Function() {
-                    public Object execute() {
-                        return range.max = range.mid();
-                    };
-                }
+                range.moveMin,
+                range.moveMax
             );
         }
         return (Integer) B.ool(arr[range.max] == target).branch(
@@ -91,14 +73,38 @@ public class FunctionalCountOccurrences implements CountOccurrences {
         );
     }
     
-    private class Range {
+    
+    
+    private static class Range {
         public Range(int min, int max) {
             this.min = min;
             this.max = max;
         }
         int min;
         int max;
+        
         int mid() {return (min + max)/2;}
+        
+        static Function size(final int min, final int max) {
+            return new Function() {
+                public Object execute() {
+                    return max - min + 1;
+                }
+            };
+        }
+        
+        Function moveMax = new Function() {
+            public Object execute() {
+                max = mid();
+                return null;
+            }
+        };
+        Function moveMin = new Function() {
+            public Object execute() {
+                min = mid();
+                return null;
+            }
+        };
     }
     
     static interface Function {
@@ -115,15 +121,13 @@ public class FunctionalCountOccurrences implements CountOccurrences {
         }
     }
     
-    static class RangeSize implements Function {
-        final int left;
-        final int right;
-        public RangeSize(int left, int right) {
-            this.left = left;
-            this.right = right;
+    static class Result implements Function {
+        final Function function;
+        public Result(Function function) {
+            this.function = function;
         }
         public Object execute() {
-            return right - left +1;
+            return function.execute();
         }
     }
     
