@@ -6,29 +6,20 @@ public class FunctionalCountOccurrences implements CountOccurrences {
     Constant<Integer> negativeOne = new Constant(-1);
     
     @Override
-    public int find(int target, int[] arr) {
+    public int find(final int target, final int[] arr) {
         return (Integer) B.ool(arr == null || arr.length == 0).branch(
             zero,
-            new TheAlgorithm(target, arr)
+            new Function<Integer>() {
+                public Integer execute() {
+                    int left = findLeft(target, arr);
+                    int right = findRight(target, arr);
+                    return B.ool(left == -1 && right == -1).branch(
+                        zero,
+                        new Range(left, right).size
+                    );
+                }
+            }
         );
-    }
-    
-    private class TheAlgorithm implements Function<Integer> {
-        int target;
-        int[] arr;
-        
-        public TheAlgorithm(int target, int[] arr) {
-            this.target = target;
-            this.arr = arr;
-        }
-        public Integer execute() {
-            int left = findLeft(target, arr);
-            int right = findRight(target, arr);
-            return B.ool(left == -1 && right == -1).branch(
-                zero,
-                new Range(left, right).size
-            );
-        }
     }
     
     private int findLeft (final int target, final int[] arr) {
