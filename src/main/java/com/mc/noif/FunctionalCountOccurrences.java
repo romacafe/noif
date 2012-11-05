@@ -1,9 +1,11 @@
 package com.mc.noif;
 
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
+
 public class FunctionalCountOccurrences implements CountOccurrences {
     
-    Constant<Integer> zero = new Constant(0);
-    Constant<Integer> negativeOne = new Constant(-1);
+    static final Constant<Integer> zero = new Constant(0);
+    static final Constant<Integer> negativeOne = new Constant(-1);
     
     @Override
     public int find(final int target, final int[] arr) {
@@ -30,17 +32,7 @@ public class FunctionalCountOccurrences implements CountOccurrences {
                 range.moveMin
             );
         }
-        return B.ool(arr[range.min] == target).branch(
-            new Constant(range.min),
-            new Function<Integer>() {
-                public Integer execute() {
-                    return B.ool(arr[range.max] == target).branch(
-                        new Constant(range.max),
-                        negativeOne
-                    );
-                }
-            }
-        );
+        return range.minMaxNone(target, arr).execute();
     }
     
     private int findRight (final int target, final int[] arr) {
@@ -51,17 +43,7 @@ public class FunctionalCountOccurrences implements CountOccurrences {
                 range.moveMax
             );
         }
-        return (Integer) B.ool(arr[range.max] == target).branch(
-            new Constant(range.max),
-            new Function<Integer>() {
-                public Integer execute() {
-                    return B.ool(arr[range.min] == target).branch(
-                        new Constant(range.min),
-                        negativeOne
-                     );
-                };
-            }
-        );
+        return range.maxMinNone(target, arr).execute();
     }
     
     private static class Range {
@@ -98,5 +80,41 @@ public class FunctionalCountOccurrences implements CountOccurrences {
                 return null;
             }
         };
+        
+        public Function<Integer> minMaxNone(final int target, final int[] arr) {
+            return new Function<Integer>() {
+                public Integer execute() {
+                    return B.ool(arr[min] == target).branch(
+                        new Constant(min),
+                        new Function<Integer>() {
+                            public Integer execute() {
+                                return B.ool(arr[max] == target).branch(
+                                    new Constant(max),
+                                    negativeOne
+                                );
+                            }
+                        }
+                    );
+                }
+            };
+        }
+        
+        public Function<Integer> maxMinNone(final int target, final int[] arr) {
+            return new Function<Integer>() {
+                public Integer execute() {
+                    return B.ool(arr[max] == target).branch(
+                        new Constant(max),
+                        new Function<Integer>() {
+                            public Integer execute() {
+                                return B.ool(arr[min] == target).branch(
+                                    new Constant(min),
+                                    negativeOne
+                                );
+                            }
+                        }
+                    );
+                }
+            };
+        }
     }
 }
