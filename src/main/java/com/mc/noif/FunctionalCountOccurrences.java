@@ -73,84 +73,39 @@ public class FunctionalCountOccurrences implements CountOccurrences {
         );
     }
     
-    
-    
     private static class Range {
+        private int min;
+        private int max;
+        
         public Range(int min, int max) {
             this.min = min;
             this.max = max;
         }
-        int min;
-        int max;
         
-        Function<Integer> size = new Function<Integer>() {
+        public Function<Integer> size = new Function<Integer>() {
             public Integer execute() {
                 return max - min + 1;
             }
         };
         
-        Function<Integer> mid = new Function<Integer>() {
+        public Function<Integer> mid = new Function<Integer>() {
             public Integer execute() {
                 return (min + max) /2;
             }
         };
         
-        Function<Void> moveMax = new Function<Void>() {
+        public Function<Void> moveMax = new Function<Void>() {
             public Void execute() {
                 max = mid.execute();
                 return null;
             }
         };
         
-        Function<Void> moveMin = new Function<Void>() {
+        public Function<Void> moveMin = new Function<Void>() {
             public Void execute() {
                 min = mid.execute();
                 return null;
             }
         };
-    }
-    
-    static interface Function<T> {
-        public T execute();
-    }
-    
-    static class Constant<T> implements Function<T> {
-        final T val;
-        public Constant(T val) {
-            this.val = val;
-        }
-        public T execute() {
-            return val;
-        }
-    }
-    
-    static abstract class B {
-        private static final B[] bools = new B[]{new FALSE(), new TRUE()};
-        
-        abstract <T> T branch(Function<T> doWhenTrue, Function<T> doWhenFalse);
-        
-        public static B ool(boolean eval) {
-            int boolIndex = getIndex(eval);
-            return bools[boolIndex];
-        }
-        
-        private static final int getIndex(boolean eval) {
-            //magic method, wish Java allowed casting booleans to ints
-            return eval ? 1 : 0;
-        }
-        
-        private static final class TRUE extends B {
-            private TRUE() {}
-            <T> T branch(Function<T> doWhenTrue, Function<T> doWhenFalse) {
-                return doWhenTrue.execute();
-            }
-        }
-        
-        private static final class FALSE extends B {
-            private FALSE() {}
-            <T> T branch(Function<T> doWhenTrue, Function<T> doWhenFalse) {
-                return doWhenFalse.execute();
-            }
-        }
     }
 }
